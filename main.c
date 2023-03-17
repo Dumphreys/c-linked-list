@@ -122,6 +122,8 @@ void *list_get(struct list_node *head, int index)
 
 struct list_node *list_init(void *headvalue)
 {
+	/* 'creates' a new list by initialising the head. */
+	
 	struct list_node *head = malloc(sizeof(struct list_node));
 
 	head->payload = headvalue;
@@ -130,7 +132,7 @@ struct list_node *list_init(void *headvalue)
 	return head;
 }
 
-void print(int i, void *item)
+void print_list_item(int i, void *item)
 {
 	printf("%d: %s\n", i, item);
 }
@@ -147,7 +149,7 @@ int main(int argc, char *argv[])
 	list_append(head, "love");
 	list_append(head, "you");
 
-	list_iter(head, (*print));
+	list_iter(head, (*print_list_item));
 	printf("%s\n", list_get(head, 5));
 
 	list_free(head);
