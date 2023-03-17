@@ -44,7 +44,7 @@ void *list_pop(struct list_node *head)
 
 void list_iter(struct list_node *head, void (*func)(int, void *))
 {
-	/* iterate through every element in the list, performing (func) on it. (int)
+	/* iterates through every element in the list, performing (func) on it. (int)
 	is the index of the element, and (void*) is the payload of that element. */
 
 	struct list_node *current = head;
@@ -59,7 +59,7 @@ void list_iter(struct list_node *head, void (*func)(int, void *))
 
 void list_insert(struct list_node *head, int index, void *val)
 {
-	/* inset an item into the list at index 'index' */
+	/* inserts an item into the list at index 'index' */
 
 	struct list_node *current = head;
 
@@ -77,7 +77,7 @@ void list_insert(struct list_node *head, int index, void *val)
 
 void *list_remove(struct list_node *head, int index)
 {
-	/* remove item from the list with index 'index', and returns it */
+	/* removes an item from the list with index 'index', and returns it */
 
 	struct list_node *current = head;
 
@@ -96,7 +96,7 @@ void *list_remove(struct list_node *head, int index)
 
 void list_free(struct list_node *head)
 {
-	/* free up all elements in the list */
+	/* frees up all elements in the list */
 
 	struct list_node *current = head;
 
@@ -109,7 +109,7 @@ void list_free(struct list_node *head)
 
 void *list_get(struct list_node *head, int index)
 {
-	/* return the payload of the element in the list at index 'index' */
+	/* returns the payload of the element in the list at index 'index' */
 
 	struct list_node *current = head;
 
