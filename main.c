@@ -19,6 +19,12 @@ void list_append(struct list_node *head, void *val)
 	}
 
 	current->next = malloc(sizeof(struct list_node));
+
+        if (current->next == NULL) {
+                fprintf(stderr, "linked list: malloc failed - not enough memory!");
+                return;
+        }
+
 	current->next->payload = val;
 	current->next->next = NULL;
 }
@@ -29,9 +35,14 @@ void *list_pop(struct list_node *head)
 
 	struct list_node *current = head;
 
-	while (current->next->next != NULL) {
-		current = current->next;
-	}
+        if (current->next == NULL) {
+                /* disallow popping a single element list */
+                return NULL;
+        }
+
+        if (current->next->next != NULL)
+                while (current->next->next != NULL)
+	        	current = current->next;
 
 	void *val = current->next->payload;
 
@@ -59,20 +70,29 @@ void list_iter(struct list_node *head, void (*func)(int, void *))
 
 void list_insert(struct list_node *head, int index, void *val)
 {
-	/* inserts an item into the list at index 'index' */
+	/* inserts an item into the list at index 'index'. to insert an
+        item at the end, use list_append */
 
 	struct list_node *current = head;
 
-	for (int i = 0; i < index; i++) {
-		current = current->next;
-	}
+        for (int i = 0; i < index; i++) {
+                if (current->next == NULL)
+                        return;
+	        current = current->next;
+        }
 
-	struct list_node *newnode = malloc(sizeof(struct list_node));
-	newnode->payload = current->payload;
-	newnode->next = current->next;
+        struct list_node *new = malloc(sizeof(struct list_node));
 
-	current->next = newnode;
-	current->payload = val;
+        if (new == NULL) {
+                fprintf(stderr, "linked list: malloc failed - not enough memory!");
+                return;
+        }
+
+        new->payload = current->payload;
+        new->next = current->next;
+
+        current->next = new;
+        current->payload = val;
 }
 
 void *list_remove(struct list_node *head, int index)
@@ -81,17 +101,20 @@ void *list_remove(struct list_node *head, int index)
 
 	struct list_node *current = head;
 
-	for (int i = 0; i < index - 1; i++) {
-		current = current->next;
-	}
+        for (int i = 0; i < index; i++) {
+                if (current->next->next == NULL)
+                        return NULL;
+	        current = current->next;
+        }
 
-	struct list_node *tmpnext = current->next->next;
-	void *payload = current->next->payload;
+        struct list_node *tmp = current->next->next;
+        current->payload = current->next->payload;
 
-	free(current->next);
-	current->next = tmpnext;
+        free(current->next);
 
-	return payload;
+        current->next = tmp;
+
+        return NULL;
 }
 
 void list_free(struct list_node *head)
@@ -100,9 +123,15 @@ void list_free(struct list_node *head)
 
 	struct list_node *current = head;
 
+        if (current == NULL) {
+                return;
+        }
+
 	while (current != NULL) {
 		struct list_node *tmp = current->next;
+
 		free(current);
+                current->next = NULL;
 		current = tmp;
 	}
 }
@@ -114,6 +143,9 @@ void *list_get(struct list_node *head, int index)
 	struct list_node *current = head;
 
 	for (int i = 0; i < index; i++) {
+                if (current->next == NULL) {
+                        return NULL;
+                }
 		current = current->next;
 	}
 
@@ -126,6 +158,11 @@ struct list_node *list_init(void *headvalue)
 	
 	struct list_node *head = malloc(sizeof(struct list_node));
 
+        if (head == NULL) {
+                fprintf(stderr, "linked list: malloc failed - not enough memory!");
+                return NULL;
+        }
+
 	head->payload = headvalue;
 	head->next = NULL;
 
@@ -134,6 +171,8 @@ struct list_node *list_init(void *headvalue)
 
 void print_list_item(int i, void *item)
 {
+        /* an example method, only works if strings are used. */
+
 	printf("%d: %s\n", i, item);
 }
 
@@ -141,16 +180,21 @@ int main(int argc, char *argv[])
 {
 	/* demo program */
 	
-	struct list_node *head = list_init("goodbye");
+	struct list_node *head = list_init("item one");
 
-	list_append(head, "hello");
-	list_append(head, "i");
-	list_append(head, "really");
-	list_append(head, "love");
-	list_append(head, "you");
+        list_append(head, "item two");
+        list_append(head, "item three");
+        list_append(head, "item four");
 
-	list_iter(head, (*print_list_item));
-	printf("%s\n", list_get(head, 5));
+        list_remove(head, 0);
 
-	list_free(head);
+        list_insert(head, 2, "inserted at 2");
+        list_insert(head, 3, "inserted at 3");
+
+        list_append(head, "appended");
+        printf("Popped element: %s\n", list_pop(head));
+
+        list_iter(head, print_list_item);
+
+        list_free(head);
 }
